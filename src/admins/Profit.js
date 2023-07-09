@@ -20,32 +20,46 @@ function Profit() {
           Swal.showLoading(); // Show loader
         },
       });
-
-      const querySnapshot = await getDocs(collection(db1, 'finance'));
-      const data = [];
-      let totalRev = 0;
-      let totalProf = 0;
-      querySnapshot.forEach((doc) => {
-        const financeData = doc.data();
-        console.log("financeData===>> ", financeData.expense);
-        data.push(financeData);
-        totalRev += parseInt(financeData.expense); // Convert to integer before summing
-        totalProf += parseInt(financeData.profit); // Convert to integer before summing
-      });
-      
-      console.log("Total Expense: ", totalRev);
-      console.log("Total Profit: ", totalProf);
-      
-      setProfitData(data);
-      setTotalRevenue(totalRev);
-      setTotalProfit(totalProf);
-      setIsLoading(false);
-
-      Swal.close(); // Hide loader
+  
+      try {
+        const querySnapshot = await getDocs(collection(db1, 'finance'));
+        const data = [];
+        let totalRev = 0;
+        let totalProf = 0;
+        querySnapshot.forEach((doc) => {
+          const financeData = doc.data();
+          console.log("financeData===>> ", financeData.expense);
+          data.push(financeData);
+          const parsedExpense = parseInt(financeData.expense);
+          const parsedProfit = parseInt(financeData.profit);
+          if (!isNaN(parsedExpense)) {
+            totalRev += parsedExpense;
+          }
+          if (!isNaN(parsedProfit)) {
+            totalProf += parsedProfit;
+          }
+        });
+  
+        console.log("Total Expense: ", totalRev);
+        console.log("Total Profit: ", totalProf);
+  
+        setProfitData(data);
+        setTotalRevenue(totalRev);
+        setTotalProfit(totalProf);
+        setIsLoading(false);
+      } catch (error) {
+        console.log("Error fetching finance data:", error);
+        // Handle the error, show an error message, or retry the request
+      } finally {
+        Swal.close(); // Hide loader
+      }
     };
-
+  
     fetchData();
   }, []);
+  
+
+  console.log("totalRevenue===>>>> ", totalRevenue);
 
   return (
     <div>
